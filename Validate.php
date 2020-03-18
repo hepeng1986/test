@@ -7,6 +7,27 @@
  */
 class Validation
 {
+    //开始解析
+    public static function validate(&$params,$validations,$isContiue = false){
+        $sMsg = "";
+        //确保本函数不抛异常
+        try{
+            if(!is_array($params) || !is_array($validations)){
+                throw new Exception("校验参数必须是数组");
+            }
+            self::check($params,$validations,$isContiue);
+        }catch (Exception $e){
+            $sMsg = $e->getMessage();
+        }
+        return $sMsg;
+    }
+    //真正校验函数
+    private static function _validate(&$params,$validations,$isContiue = false){
+        //遍历
+        foreach ($validations as $field=>$validator){
+            $aConf = explode("|",$validator);
+        }
+    }
     /**********************************Int*********************************************/
     //判断是否是整数
     public static function validateInt($value)
@@ -124,7 +145,7 @@ class Validation
         if(!self::validateInt($value)){
             return false;
         }
-        if(in_array($value,$valueList,true)){
+        if(in_array($value,$valueList)){
             return true;
         }
         return false;
@@ -134,7 +155,7 @@ class Validation
         if(!self::validateInt($value)){
             return false;
         }
-        if(!in_array($value,$valueList,true)){
+        if(!in_array($value,$valueList)){
             return true;
         }
         return false;
@@ -340,7 +361,7 @@ class Validation
     //In
     public static function validateStrIn($value,$valueList)
     {
-        if (is_string($value) && in_array($value,$valueList,true)) {
+        if (is_string($value) && in_array($value,$valueList)) {
             return true;
         }
         return false;
@@ -348,7 +369,7 @@ class Validation
     //NotIn
     public static function validateStrNotIn($value,$valueList)
     {
-        if (is_string($value) && !in_array($value,$valueList,true)) {
+        if (is_string($value) && !in_array($value,$valueList)) {
             return true;
         }
         return false;
@@ -576,4 +597,16 @@ class Validation
         return false;
     }
     /**********************************File*********************************************/
+    //后缀名
+    public static function validateFileExt($value,$valueList)
+    {
+        if(!is_string($value)){
+            return false;
+        }
+        $info = pathinfo($value,PATHINFO_EXTENSION );
+        if($info && in_array($info,$valueList)){
+            return true;
+        }
+        return false;
+    }
 }
