@@ -54,13 +54,37 @@ class Validation
             if(!self::checkRuleExist($ruleKey)){
                 throw new Exception("验证规则:【{$ruleKey}】不存在");
             }
+            //校验规则正确性
+            $paramList = [];
+            $sErrorMsg = self::checkRuleValid($ruleKey,$ruleValue,$paramList);
+            if(!$sErrorMsg){
+                throw new Exception($sErrorMsg);
+            }
             if("Required" == $ruleKey){
-                if(!isset($params[$ruleKey]) || "" === $params[$ruleKey]){
-//                        thro
+                if(!isset($params[$field]) || "" === $params[$field]){
+                    self::throwErrorMessage($ruleKey,$ruleValue,$sCustomAlias,$sCustomMsg,$paramList);
+                }
+            }elseif("Default" == $ruleKey){
+
+            }else{
+                $sMethod = "validate".$ruleKey;
+                if(!method_exists(self::class,$sMethod)){
+                    throw new Exception("验证方法:【{$sMethod}】不存在");
+                }
+                $bRet = call_user_func_array([self::class, $sMethod], $paramList);
+                if(!$bRet){
+                    self::throwErrorMessage($ruleKey,$sCustomAlias,$sCustomMsg);
                 }
             }
-
         }
+    }
+    //获取校验错误信息
+    private static function throwErrorMessage($ruleKey,$ruleValue,$sCustomAlias,$sCustomMsg,$paramList)
+    {
+        $sLastMessage = "";
+
+        $sMessage = self::$errorTemplates[$ruleKey];
+        throw new Exception($sLastMessage);
     }
     //获取校验规则
     private static function getRule($validator)
